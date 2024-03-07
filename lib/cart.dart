@@ -418,7 +418,7 @@ class _MyCartState extends State<MyCart> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Container(
-                width: 77,
+                width: 107,
                 height: 51,
                 child: Column(
                   children: [
