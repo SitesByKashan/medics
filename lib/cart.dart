@@ -1,541 +1,314 @@
+import 'package:Medics/home.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:Medics/pharmacy.dart';
 
-class MyCart extends StatefulWidget {
-  const MyCart({super.key});
+class CartScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> cart;
+
+  const CartScreen({Key? key, required this.cart}) : super(key: key);
 
   @override
-  State<MyCart> createState() => _MyCartState();
+  _CartScreenState createState() => _CartScreenState();
 }
 
-class _MyCartState extends State<MyCart> {
-  int _quantity = 1;
-  int _quantity1 = 1;
-  double _totalPrice = 1200;
-  double _totalPrice1 = 68;
-  double _pricePerUnit = 1200;
-  double _pricePerUnit1 = 68;
-  double _subtotal = 0;
-  double _taxRate = 0.05;
+class _CartScreenState extends State<CartScreen> {
+  late List<Map<String, dynamic>> cart;
 
-  void _incrementQuantity() {
-    setState(() {
-      _quantity++;
-      _totalPrice = _quantity * _pricePerUnit;
-      _calculateSubtotal();
-    });
+  @override
+  void initState() {
+    super.initState();
+    cart = widget.cart; // Initialize the cart from the widget
   }
 
-  void _decrementQuantity() {
-    setState(() {
-      if (_quantity > 1) {
-        _quantity--;
-        _totalPrice = _quantity * _pricePerUnit;
-        _calculateSubtotal();
-      }
-    });
-  }
-
-  void _incrementQuantity1() {
-    setState(() {
-      _quantity1++;
-      _totalPrice1 = _quantity1 * _pricePerUnit1;
-      _calculateSubtotal();
-    });
-  }
-
-  void _decrementQuantity1() {
-    setState(() {
-      if (_quantity1 > 1) {
-        _quantity1--;
-        _totalPrice1 = _quantity1 * _pricePerUnit1;
-        _calculateSubtotal();
-      }
-    });
-  }
-
-  void _calculateSubtotal() {
-    _subtotal = (_quantity * _pricePerUnit) + (_quantity1 * _pricePerUnit1);
-  }
-
-  double _calculateTax(double subtotal, double taxRate) {
-    return subtotal * taxRate;
-  }
-
-  double _calculateTotal() {
-    return _subtotal + _calculateTax(_subtotal, _taxRate);
+  double getTotalAmount() {
+    return cart.fold(
+      0,
+      (sum, item) => sum + (item['product']['price'] * item['quantity']),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    double totalAmount = getTotalAmount();
+
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: Text(
-          "My Cart",
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF101623),
-          ),
+          'My Bag',
+          style: TextStyle(
+              color: Colors.white), // Set the title text color to white
         ),
+        centerTitle: true, // Center the title
+        backgroundColor: Color(0xFF199A8E), // Your theme color
+        iconTheme:
+            IconThemeData(color: Colors.white), // Set back icon color to white
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 334,
-                height: 262,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 334,
-                        height: 121,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Color(0xFFADADAD),
-                          ),
+          Expanded(
+            child: cart.isEmpty
+                ? Center(
+                    child: Text(
+                      "Your cart is empty",
+                      style: GoogleFonts.inter(
+                          fontSize: 20, color: Color(0xFF101623)),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: cart.length,
+                    itemBuilder: (context, index) {
+                      final item = cart[index];
+                      return Card(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                        child: ListTile(
+                          leading:
+                              Image.asset(item['product']['image'], width: 50),
+                          title: Text(item['product']['name']),
+                          subtitle: Text("Quantity: ${item['quantity']}"),
+                          trailing: Text(
+                              "Total: Rs ${item['product']['price'] * item['quantity']}"),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [Image.asset("assets/Lysine.png")],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "OHB Combi",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF101623),
-                                  ),
-                                ),
-                                Text(
-                                  "75ml",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFFADADAD),
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.remove_circle,
-                                        size: 18,
-                                        color: Color(0xFF199A8E),
-                                      ),
-                                      onPressed: _decrementQuantity,
-                                    ),
-                                    Text(
-                                      '$_quantity',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.add_box_rounded,
-                                        size: 18,
-                                        color: Color(0xFF199A8E),
-                                      ),
-                                      onPressed: _incrementQuantity,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Icon(
-                                  Icons.delete_outline_rounded,
-                                  color: Color(0xFF199A8E),
-                                ),
-                                Text(
-                                  'Rs $_totalPrice',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xFF101623),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 334,
-                        height: 121,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Color(0xFFADADAD),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [Image.asset("assets/Calvit.png")],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Panadol",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF101623),
-                                  ),
-                                ),
-                                Text(
-                                  "20pcs",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFFADADAD),
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.remove_circle,
-                                        size: 18,
-                                        color: Color(0xFF199A8E),
-                                      ),
-                                      onPressed: _decrementQuantity1,
-                                    ),
-                                    Text(
-                                      '$_quantity1',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.add_box_rounded,
-                                        size: 18,
-                                        color: Color(0xFF199A8E),
-                                      ),
-                                      onPressed: _incrementQuantity1,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Icon(
-                                  Icons.delete_outline_rounded,
-                                  color: Color(0xFF199A8E),
-                                ),
-                                Text(
-                                  'Rs $_totalPrice1',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xFF101623),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                ),
-              ),
-            ],
           ),
-          Container(
-            width: 335,
-            height: 125,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Payment Details",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF101623),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Subtotal",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Color(0xFF555555),
-                      ),
-                    ),
-                    Text(
-                      "Rs $_subtotal",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Color(0xFF555555),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Taxes",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Color(0xFF555555),
-                      ),
-                    ),
-                    Text(
-                      "Rs ${_calculateTax(_subtotal, _taxRate)}",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Color(0xFF555555),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Color(0xFF101623),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      "Rs ${_calculateTotal()}",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Color(0xFF101623),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 334,
-            height: 83,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Payment Method",
+                  "Total Amount: Rs $totalAmount",
                   style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF101623),
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _showCheckoutDialog(context);
+                    },
+                    child: Text("Checkout"),
                   ),
                 ),
-                Container(
-                  width: 334,
-                  height: 49,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                        color: Color(0xFFE8F3F1),
-                      )),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: 20,
-                        ),
-                        child: Text(
-                          "VISA",
-                          style: GoogleFonts.inter(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF1A1F71),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          right: 20,
-                        ),
-                        child: Text(
-                          "Change",
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFADADAD),
-                          ),
-                        ),
-                      ),
-                    ],
+                SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _clearCart();
+                    },
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: Text("Clear Cart",
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                width: 107,
-                height: 51,
-                child: Column(
-                  children: [
-                    Text(
-                      "Total",
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: Color(0xFFADADAD),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      "Rs ${_calculateTotal()}",
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Color(0xFF101623),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: Color(0xFFFFFFFF),
-                      content: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Image.asset("assets/Done.png"),
-                          Container(
-                            width: 273,
-                            height: 135,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Payment Success",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF101623),
-                                  ),
-                                ),
-                                Text(
-                                  "Your payment has been successful, you can have \n a consultation session \n with your trusted doctor",
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFFA1A8B0),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Pharmacy()),
-                              (route) => false,
-                            );
-                          },
-                          child: Center(
-                            child: Container(
-                              width: 183,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Color(0xFF199A8E),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Back To Home",
-                                  style: GoogleFonts.inter(
-                                    color: Color(0xFFFFFFFF),
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 192,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    color: Color(0xFF199A8E),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Checkout",
-                      style: GoogleFonts.inter(
-                        color: Color(0xFFFFFFFF),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
+    );
+  }
+
+  void _showCheckoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Checkout"),
+          content: SingleChildScrollView(
+            child: CheckoutForm(onSubmit: (String? paymentMethod) {
+              if (paymentMethod != null) {
+                _showOrderConfirmationDialog(context);
+              } else {
+                _showErrorDialog(context);
+              }
+            }),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showOrderConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Order Confirmation"),
+          content: Text("Your order has been successfully placed!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the checkout dialog
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => Home(user: null)),
+                  (route) => false,
+                ); // Navigate to home screen
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text("Please fill out all fields before proceeding."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the error dialog
+                Navigator.of(context).pop(); // Close the checkout dialog
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _clearCart() {
+    setState(() {
+      cart.clear(); // Clear the cart list
+    });
+  }
+}
+
+class CheckoutForm extends StatefulWidget {
+  final Function(String?) onSubmit;
+
+  const CheckoutForm({Key? key, required this.onSubmit}) : super(key: key);
+
+  @override
+  _CheckoutFormState createState() => _CheckoutFormState();
+}
+
+class _CheckoutFormState extends State<CheckoutForm> {
+  String? _paymentMethod;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
+  final TextEditingController _cardHolderNameController =
+      TextEditingController();
+  final TextEditingController _cardNumberController = TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
+  final TextEditingController _expiryDateController = TextEditingController();
+
+  bool _validateForm() {
+    return _nameController.text.isNotEmpty &&
+        _addressController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
+        _contactNumberController.text.isNotEmpty &&
+        (_paymentMethod != 'Credit Card' && _paymentMethod != 'Debit Card' ||
+            (_cardHolderNameController.text.isNotEmpty &&
+                _cardNumberController.text.isNotEmpty &&
+                _cvvController.text.isNotEmpty &&
+                _expiryDateController.text.isNotEmpty));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: _nameController,
+          decoration: InputDecoration(labelText: "Name"),
+        ),
+        TextField(
+          controller: _addressController,
+          decoration: InputDecoration(labelText: "Address"),
+        ),
+        TextField(
+          controller: _emailController,
+          decoration: InputDecoration(labelText: "Email"),
+        ),
+        TextField(
+          controller: _contactNumberController,
+          decoration: InputDecoration(labelText: "Contact Number"),
+        ),
+        DropdownButtonFormField<String>(
+          value: _paymentMethod,
+          onChanged: (String? newValue) {
+            setState(() {
+              _paymentMethod = newValue;
+            });
+          },
+          items: <String>['Credit Card', 'Debit Card', 'Cash on Delivery']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          decoration: InputDecoration(labelText: "Payment Method"),
+        ),
+        if (_paymentMethod == 'Credit Card' ||
+            _paymentMethod == 'Debit Card') ...[
+          TextField(
+            controller: _cardHolderNameController,
+            decoration: InputDecoration(labelText: "Card Holder Name"),
+          ),
+          TextField(
+            controller: _cardNumberController,
+            decoration: InputDecoration(labelText: "Card Number"),
+          ),
+          TextField(
+            controller: _cvvController,
+            decoration: InputDecoration(labelText: "CVV"),
+            obscureText: true,
+          ),
+          TextField(
+            controller: _expiryDateController,
+            decoration: InputDecoration(labelText: "Expiry Date (MM/YY)"),
+          ),
+        ],
+        ElevatedButton(
+          onPressed: () {
+            if (_validateForm()) {
+              widget.onSubmit(_paymentMethod);
+            } else {
+              _showErrorDialog(context);
+            }
+          },
+          child: Text("Process Payment"),
+        ),
+      ],
+    );
+  }
+
+  void _showErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text("Please fill out all fields before proceeding."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the error dialog
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

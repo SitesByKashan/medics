@@ -18,7 +18,7 @@ class _OnBoarding_3State extends State<OnBoarding_3> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFFFF),
+      backgroundColor: Color(0xFF199A8E),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
